@@ -11,3 +11,4 @@
 .vscode/tasks.json
 chip8.exe
 Games/desktop.ini
+.vscode/*

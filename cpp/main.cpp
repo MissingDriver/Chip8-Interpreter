@@ -7,9 +7,7 @@
 int main( int argc, char* args[]) 
 { 
 	CPU cpu;
-	//PPU ppu;
-	cpu.romToMemory("UFO");
-	//ppu.loadFont();
+	cpu.romToMemory("MAZE");
 	typedef std::chrono::steady_clock Time;
     typedef std::chrono::milliseconds ms;
 
@@ -21,7 +19,6 @@ int main( int argc, char* args[])
 	
 	int opElapsed;
 	int timerElapsed;
-	//ppu.createWindow();
 	opStart = Time::now();
 	timerStart = Time::now();
 	while(cpu.power())
@@ -32,15 +29,13 @@ int main( int argc, char* args[])
 		opEnd = Time::now();
 		opElapsed = int(std::chrono::duration_cast<ms>(opEnd-opStart).count());
 		
-		//if(timerElapsed >= 1000)
-		//{
-			cpu.timerDecrement();
-			timerStart = Time::now();
-		//}
+		cpu.timerDecrement();
+		timerStart = Time::now();
 
 		if(opElapsed >= 2)
 		{
 			cpu.runOpcode();
+			cpu.timerDecrement();
 			opStart = Time::now();
 		}
 		

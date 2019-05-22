@@ -234,13 +234,13 @@ void CPU::runOpcode()
                     V[0xF] = ((V[x] + V[y]) > 255);
                     V[x] = (V[x] + V[y]) & 0xFF;
                     break;
-                case 0x5:  //SUB Vx, Vy
+                case 0x5:  //SUB Vx, Vy MIGHT BE FLAWED
                     V[0xF] = (V[x] > V[y]);
                     V[x] -= V[y];
                     break;
                 case 0x6:  //SHR Vx {, Vy}
                     V[0xF] = (V[x] & 1);
-                    //V[x] /=2;
+                    
                     V[x] = (V[y] >> 1);
                     break;
                 case 0x7:  //SUBN Vx, Vy
@@ -276,15 +276,14 @@ void CPU::runOpcode()
             
             for(int n = 0; n < (opcode & 0xF); n++)
             {
-                if(ppu.setPixel(V[x], V[y]+n, memory[I+n]) && !collision)
-                    collision = true;
+                collision = ppu.setPixel(V[x], V[y]+n, memory[I+n]);
                 if(!power())
+                    
                     std::cout<<"\nIm turning off " << n;
             }
             
             V[0xF] = collision;
             ppu.render();
-           // std::cin.get();
             break;
         case 0xE: //Ex##
             switch(opcodeRange(opcode, 0, 8))
@@ -332,15 +331,23 @@ void CPU::runOpcode()
                     memory[I+2] = (V[x]%10);
                     //I+=I+2;
                     break;
+
+                /*
+                NOTE: opcodes 0xFX55 and 0xFX65 may or may not need to change register I
+                EXAMPLE Pong works when you change the program counter but TICTAC dosent,
+                however if you dont change the program counter then tictac works. This is
+                due to two different common implementations of chip8. I will need to 
+                implement a user setting for this later.
+                */
                 case 0x55:  //LD [I], Vx
                     for(int i = 0; i <= x; i++)
                         memory[I+i] = V[i];
-                        I+=x+1;
+                    I+=x+1;
                     break;
                 case 0x65:  //LD Vx, [I]
                     for(int i = 0; i <= x; i++)
                         V[i] = memory[I+i];
-                        I+=x+1;
+                    I+=x+1;
                     break;
                 default:
                     std::cout<<" dosent exist";

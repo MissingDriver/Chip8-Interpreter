@@ -49,14 +49,12 @@ void PPU::events()
     {
         case SDL_QUIT: //on quit stop running
             isRunning = false;
-            std::cout<<"Quit";
             break;
         case SDL_KEYDOWN:
             switch(event.key.keysym.sym)
             {
                 case SDLK_ESCAPE:
                     isRunning = false;
-                    std::cout<<"Escape";
                     break;
                 case SDLK_1:
                     keys[0x1] = true;
@@ -199,39 +197,50 @@ bool PPU::hasKey(int key)
     return keys[key];
 }
 ////////////////////////////////////////////////////////Creates the pixels to be drawn to the ppu//////////////////////////////////////////////////////////////////
-bool PPU::setPixel(int x, int y, unsigned char pixelMap)
+bool PPU::setPixel(unsigned char x, unsigned char y, unsigned char pixelMap)
 {
    SDL_Rect *pixel = new SDL_Rect;
+   pixel->w = mult;
+   pixel->h = mult;
+
    bool collision = false;
    bool oldState; //checks the previous state of the pixel
    
    int X = 0;
    int Y = 0;
 
-   if(y > h)
-         Y = ((y%h)-1);
-      else
-         Y = y;
+   int temp = 0;
 
+   Y = ((y%h));
+   /*if(y<0)
+      Y = y + h;
+   */
+   pixel->y = (Y * mult);
+   std::cout<<"\nW: " << w << "\tH: " << h << "\n";
    for(int i = 0; i < 8; i++)
-   {
-      if(x+i > w) 
-         X = (((x+i)%w)-1);
-      else
-         X = (x+i);
+   { 
+      X = (((x+i)%w));
+      /*if((x+i) < 0)
+         X = x+i+w;*/
+
+      if(Y<0)
+      {
+         std::cout<<"lx: " << +(x+i) << "\tly: " << +y << "\n";
+         std::cout<<"X: " << +X << "\tY: " << +Y << "\n";
+         std::cin.get();
+      }
 
       oldState = pixels[X][Y]; 
 
       pixels[X][Y] = pixels[X][Y] ^ ((pixelMap >> (7-i)) & 1); //A pixels state is determined by the XOR of its current state and its corresponding new map
       
       if(!collision && oldState && !pixels[X][Y]) //If a pixel collision has been detected, then the function returns the information to the CPU
-         collision = false;
-      pixel->x = X*mult;
-      pixel->y = Y*mult;
+         {std::cout<<"COLLISION\n";
+         //std::cin.get();
+         collision = true;}
 
-      pixel->w = 1*mult;
-      pixel->h = 1*mult;
-
+      pixel->x = X*mult;            
+      
       if(pixels[X][Y])
          SDL_SetRenderDrawColor(renderer,255,255,255,255);
       else

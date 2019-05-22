@@ -19,7 +19,7 @@ class PPU
         void clear();
         void createWindow();
         void events();
-        bool setPixel(int x, int y, unsigned char pixelMap);
+        bool setPixel(unsigned char x, unsigned char y, unsigned char pixelMap);
         void render();
         void destroy();
         bool running();
